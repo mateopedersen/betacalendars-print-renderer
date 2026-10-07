@@ -19,6 +19,6 @@ jobs:
         uses: docker/scout-action@v1
         with:
           command: cves
-          image: registry://mateopedersen/betacalendars-print-renderer:1.0.0
+          image: registry://mateopedersen/betacalendars-print-renderer:latest
           organization: mateopedersen
           summary: true

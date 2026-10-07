@@ -1,4 +1,4 @@
-FROM node:24-bookworm-slim AS verification
+FROM node:24-trixie-slim AS verification
 WORKDIR /workspace
 COPY package.json package-lock.json ./
 COPY src ./src
@@ -8,8 +8,8 @@ RUN node --experimental-strip-types scripts/check-source.mjs \
  && node --experimental-strip-types --test test/*.test.ts \
  && node scripts/validate-examples.mjs
 
-FROM node:24-bookworm-slim AS runtime
-ARG VERSION=1.0.0
+FROM node:24-trixie-slim AS runtime
+ARG VERSION=1.0.1
 ARG VCS_REF=unknown
 ARG BUILD_DATE=unknown
 LABEL org.opencontainers.image.title="BetaCalendars Print Renderer" \
@@ -25,7 +25,10 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=verification --chown=node:node /workspace/package.json ./package.json
 COPY --from=verification --chown=node:node /workspace/src ./src
-RUN mkdir -p /output && chown node:node /output
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-* \
+ && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg \
+ && mkdir -p /output \
+ && chown node:node /output
 VOLUME ["/output"]
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
