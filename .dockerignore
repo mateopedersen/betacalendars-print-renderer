@@ -6,8 +6,6 @@ output
 coverage
 docs
 examples
-test
-scripts
 README.md
 CHANGELOG.md
 CONTRIBUTING.md
