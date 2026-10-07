@@ -29,6 +29,7 @@ jobs:
       - name: Test non-root, mounted output, and read-only runtime
         run: |
           mkdir -p "$RUNNER_TEMP/betacal-output"
+          chmod 0777 "$RUNNER_TEMP/betacal-output"
           docker run --rm --read-only --tmpfs /tmp \
             -v "$RUNNER_TEMP/betacal-output:/output" \
             betacal-local:test render month --year 2027 --month 1 --format svg,pdf,json
