@@ -46,4 +46,9 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:8080/v1/month/2027/2?weekStart=monday | grep 'February'
-          docker inspect --format '{{.State.Health.Status}}' betacal-test | grep healthy
+          for attempt in $(seq 1 40); do
+            if [ "$(docker inspect --format '{{.State.Health.Status}}' betacal-test)" = healthy ]; then exit 0; fi
+            sleep 1
+          done
+          docker inspect --format '{{.State.Health.Status}}' betacal-test
+          exit 1
