@@ -1,0 +1,17 @@
+{
+  "name": "betacalendars-print-renderer",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Deterministic printable calendar renderer for SVG, PDF and JSON output.",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=24 <25" },
+  "bin": { "betacal": "src/cli.ts" },
+  "scripts": {
+    "start": "node src/cli.ts",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "lint": "node scripts/check-source.mjs",
+    "typecheck": "node scripts/check-source.mjs",
+    "validate:examples": "node scripts/validate-examples.mjs"
+  }
+}

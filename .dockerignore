@@ -1,0 +1,14 @@
+.git
+.github
+node_modules
+output
+*.log
+coverage
+docs
+examples
+test
+scripts
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+SECURITY.md

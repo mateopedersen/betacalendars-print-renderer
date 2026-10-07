@@ -1,0 +1,48 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax and type-stripping check
+        run: npm run typecheck
+      - name: Unit and calendar regression tests
+        run: npm test
+      - name: Verify render examples
+        run: npm run validate:examples
+      - name: Build container image
+        run: docker build --pull -t betacal-local:test .
+      - name: Test non-root, mounted output, and read-only runtime
+        run: |
+          mkdir -p "$RUNNER_TEMP/betacal-output"
+          docker run --rm --read-only --tmpfs /tmp \
+            -v "$RUNNER_TEMP/betacal-output:/output" \
+            betacal-local:test render month --year 2027 --month 1 --format svg,pdf,json
+          test -s "$RUNNER_TEMP/betacal-output/january-2027.svg"
+          test -s "$RUNNER_TEMP/betacal-output/january-2027.pdf"
+          test -s "$RUNNER_TEMP/betacal-output/january-2027.json"
+          test "$(docker run --rm --entrypoint id betacal-local:test -u)" = "1000"
+      - name: Test server health endpoint
+        run: |
+          docker run -d --name betacal-test -p 127.0.0.1:8080:8080 betacal-local:test serve
+          trap 'docker rm -f betacal-test >/dev/null 2>&1 || true' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8080/health; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8080/v1/month/2027/2?weekStart=monday | grep 'February'
+          docker inspect --format '{{.State.Health.Status}}' betacal-test | grep healthy
