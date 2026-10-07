@@ -1,0 +1,24 @@
+name: Docker Scout image report
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sign in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Analyze published image with Docker Scout
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: registry://mateopedersen/betacalendars-print-renderer:1.0.0
+          organization: mateopedersen
+          summary: true
